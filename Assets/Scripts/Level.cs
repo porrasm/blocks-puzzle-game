@@ -28,6 +28,8 @@ public class Level : MonoBehaviour {
             State = state;
         }
     }
+
+    public bool Finished { get; private set; }
     #endregion
 
     private void Start() {
@@ -35,11 +37,15 @@ public class Level : MonoBehaviour {
         states = new List<MoveState>();
         states.Add(InitialState());
         UpdateDictionary();
+
+        Events.FireEvent(EventType.OnLevelStart);
     }
 
     private void Update() {
         if (CheckMove()) {
+            Events.FireEvent(EventType.OnMoveStart, CallbackData.Object(currentMove));
             ExecuteMove();
+            Events.FireEvent(EventType.OnMoveEnd, CallbackData.Object(currentMove));
         }
         if (Input.GetKeyDown(KeyCode.Backspace)) {
             if (states.Count > 1) {
@@ -59,6 +65,10 @@ public class Level : MonoBehaviour {
 
     #region move
     private bool CheckMove() {
+
+        if (Finished) {
+            return false;
+        }
 
         int x = 0;
         int y = 0;
@@ -97,22 +107,26 @@ public class Level : MonoBehaviour {
 
         MoveState newState = new MoveState(currentMove, (LevelState)CurrentState.Clone());
 
-        foreach (var pieces in newState.State.Field) {
-            foreach (GamePiece piece in pieces) {
-                Logger.Log("exevuting piece");
-                Logger.Log("piec old x " + piece.X);
-                piece.ExecuteMove(newState.Move);
-                Logger.Log("piec new x " + piece.X);
-            }
-        }
+        newState.State.IteratePieces((piece) => {
+            piece.UpdateMove(newState);
+        });
 
-        if (!newState.State.FixState()) {
+        LevelState.Status status = LevelState.FixState(newState);
+
+        if (status == LevelState.Status.Invalid) {
             Logger.Log("Incorrect move");
+            Events.FireEvent(EventType.OnInvalidMove);
             return;
         }
 
         states.Add(newState);
         UpdateDictionary();
+
+        if (status == LevelState.Status.Finish) {
+            Logger.Log("Finished level");
+            Finished = true;
+            Events.FireEvent(EventType.OnLevelFinish);
+        }
     }
     #endregion
 
@@ -142,7 +156,6 @@ public class Level : MonoBehaviour {
         foreach (var pieces in CurrentState.Field) {
             foreach (GamePiece piece in pieces) {
                 this.pieces.Add(piece.ID, piece);
-                Logger.Log("Adding piece: " + piece.ID + ", " + piece);
             }
         }
     }

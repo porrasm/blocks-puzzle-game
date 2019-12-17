@@ -1,4 +1,5 @@
 ﻿public enum PieceType {
     None,
-    PlayPiece
+    PlayPiece,
+    FinishPiece
 }
