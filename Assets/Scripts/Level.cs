@@ -2,57 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Level : MonoBehaviour {
+public class Level {
 
     #region fields
-    private static Level current;
+    private static LevelContainer current;
 
-    public int Width { get; private set; } = 9;
-    public int Height { get; private set; } = 9;
-
-    private Move currentMove;
-    private List<MoveState> states;
-    private LevelState CurrentState {
+    private Move CurrentMove { get; set; }
+    public List<MoveState> States { get; private set; }
+    public MoveState CurrentState {
         get {
-            return states[states.Count - 1].State;
+            return States[States.Count - 1];
         }
     }
 
     private Dictionary<int, GamePiece> pieces;
 
-    public struct MoveState {
-        public Move Move;
-        public LevelState State;
-        public MoveState(Move move, LevelState state) {
-            Move = move;
-            State = state;
-        }
-    }
-
     public bool Finished { get; private set; }
     #endregion
 
-    private void Start() {
+    public Level(MoveState state) {
         pieces = new Dictionary<int, GamePiece>();
-        states = new List<MoveState>();
-        states.Add(InitialState());
-        UpdateDictionary();
+        States = new List<MoveState>();
 
-        Events.FireEvent(EventType.OnLevelStart);
+        States.Add(state);
+        UpdateDictionary();
     }
 
-    private void Update() {
-        if (CheckMove()) {
-            Events.FireEvent(EventType.OnMoveStart, CallbackData.Object(currentMove));
-            ExecuteMove();
-            Events.FireEvent(EventType.OnMoveEnd, CallbackData.Object(currentMove));
-        }
-        if (Input.GetKeyDown(KeyCode.Backspace)) {
-            if (states.Count > 1) {
-                states.RemoveAt(states.Count - 1);
-                UpdateDictionary();
-            }
-        }
+    public void Backtrack() {
+        States.RemoveAt(States.Count - 1);
+        UpdateDictionary();
+    }
+    public void Restart() {
+        MoveState initial = States[0];
+        States.Clear();
+        States.Add(initial);
+        UpdateDictionary();
     }
 
     public GamePiece GetPiece(int id) {
@@ -63,107 +47,57 @@ public class Level : MonoBehaviour {
         throw new System.Exception("Piece not found");
     }
 
-    #region move
-    private bool CheckMove() {
-
-        if (Finished) {
-            return false;
-        }
-
-        int x = 0;
-        int y = 0;
-
-        if (Input.GetKeyDown(KeyCode.W)) {
-            y++;
-        }
-        if (Input.GetKeyDown(KeyCode.S)) {
-            y--;
-        }
-        if (Input.GetKeyDown(KeyCode.D)) {
-            x++;
-        }
-        if (Input.GetKeyDown(KeyCode.A)) {
-            x--;
-        }
-
-        if (x == 0 && y == 0) {
-            currentMove = Move.None;
-            return false;
-        }
-
-        if (x == 1) {
-            currentMove = Move.Right;
-        } else if (x == -1) {
-            currentMove = Move.Left;
-        } else if (y == 1) {
-            currentMove = Move.Up;
-        } else if (y == -1) {
-            currentMove = Move.Down;
-        }
-        return true;
+    public void ExecuteMove(Move move) {
+        Level.ExecuteMove(this, move);
     }
 
-    private void ExecuteMove() {
+    #region move
+    private static LevelState.Status ExecuteMove(Level level, Move move) {
 
-        MoveState newState = new MoveState(currentMove, (LevelState)CurrentState.Clone());
+        MoveState newState = new MoveState(move, (LevelState)level.CurrentState.State.Clone());
 
-        newState.State.IteratePieces((piece) => {
-            piece.UpdateMove(newState);
-        });
+        foreach (var pieces in newState.State.Field) {
+            foreach (GamePiece piece in pieces) {
+                piece.UpdateMove(newState);
+            }
+        }
 
         LevelState.Status status = LevelState.FixState(newState);
 
         if (status == LevelState.Status.Invalid) {
             Logger.Log("Incorrect move");
             Events.FireEvent(EventType.OnInvalidMove);
-            return;
+            return status;
         }
 
-        states.Add(newState);
-        UpdateDictionary();
+        level.States.Add(newState);
+        level.UpdateDictionary();
 
         if (status == LevelState.Status.Finish) {
             Logger.Log("Finished level");
-            Finished = true;
+            level.Finished = true;
             Events.FireEvent(EventType.OnLevelFinish);
         }
+
+        return status;
     }
     #endregion
 
-    // Testing only
-    private MoveState InitialState() {
-
-        FieldPiece[] pieces = GameObject.FindObjectsOfType<FieldPiece>();
-
-        LevelState state = new LevelState(Width, Height);
-
-        for (int i = 0; i < pieces.Length; i++) {
-
-            GamePiece piece = pieces[i].GetInitialPiece();
-
-            piece.X = (int)pieces[i].transform.localPosition.x;
-            piece.Y = (int)pieces[i].transform.localPosition.y;
-
-            pieces[i].PieceID = piece.ID;
-
-            state.Field[piece.X, piece.Y].AddLast(piece);
-        }
-
-        return new MoveState(Move.None, state);
-    }
     private void UpdateDictionary() {
         pieces = new Dictionary<int, GamePiece>();
-        foreach (var pieces in CurrentState.Field) {
+        foreach (var pieces in CurrentState.State.Field) {
             foreach (GamePiece piece in pieces) {
                 this.pieces.Add(piece.ID, piece);
             }
         }
+
+        Events.FireEvent(EventType.OnFieldStateChange, CallbackData.Object(CurrentState));
     }
 
-    public static Level Current {
+    public static LevelContainer Current {
         get {
             if (current == null) {
-                current = GameObject.FindGameObjectWithTag("Level").GetComponent<Level>();
+                current = GameObject.FindGameObjectWithTag("Level").GetComponent<LevelContainer>();
                 NullCheck.Check(current);
             }
             return current;

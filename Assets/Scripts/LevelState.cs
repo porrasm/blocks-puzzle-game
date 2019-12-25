@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct LevelState : ICloneable {
+public class LevelState : ICloneable {
 
     #region fields
-    public LinkedList<GamePiece>[,] Field { get; private set; }
+    public List<GamePiece>[,] Field { get; private set; }
     #endregion
 
     public enum Status {
@@ -16,24 +16,24 @@ public struct LevelState : ICloneable {
     }
 
     public LevelState(int width, int height) {
-        Field = new LinkedList<GamePiece>[width, height];
+        Field = new List<GamePiece>[width, height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                Field[i, j] = new LinkedList<GamePiece>();
+                Field[i, j] = new List<GamePiece>();
             }
         }
     }
 
     #region state modification
-    public static Status FixState(Level.MoveState moveState) {
+    public static Status FixState(MoveState moveState) {
 
         int width = moveState.State.Field.GetLength(0);
         int height = moveState.State.Field.GetLength(1);
 
-        LinkedList<GamePiece>[,] newField = new LinkedList<GamePiece>[width, height];
+        List<GamePiece>[,] newField = new List<GamePiece>[width, height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                newField[x, y] = new LinkedList<GamePiece>();
+                newField[x, y] = new List<GamePiece>();
             }
         }
 
@@ -42,7 +42,7 @@ public struct LevelState : ICloneable {
                 //if (moveState.State.IncorrectPiecePosition(piece)) {
                 //    return Status.Invalid;
                 //}
-                newField[piece.X, piece.Y].AddLast(piece);
+                newField[piece.X, piece.Y].Add(piece);
             }
         }
 
@@ -82,6 +82,17 @@ public struct LevelState : ICloneable {
         return allActive;
     }
 
+    public bool CellHasPiece(int x, int y, PieceType type) {
+
+        foreach (GamePiece piece in Field[x, y]) {
+            if (piece.Type == type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private bool IncorrectPiecePosition(GamePiece piece) {
         //if (piece.X < 0 || piece.X >= Field.GetLength(0)) {
         //    return true;
@@ -105,7 +116,7 @@ public struct LevelState : ICloneable {
         return false;
     }
 
-    private static bool IncorrectPanel(LinkedList<GamePiece> panel) {
+    private static bool IncorrectPanel(List<GamePiece> panel) {
         int playBlockCount = 0;
 
         foreach (GamePiece p in panel) {
@@ -132,7 +143,7 @@ public struct LevelState : ICloneable {
             for (int y = 0; y < height; y++) {
 
                 foreach (GamePiece piece in Field[x, y]) {
-                    newState.Field[x, y].AddLast((GamePiece)piece.Clone());
+                    newState.Field[x, y].Add((GamePiece)piece.Clone());
                 }
             }
         }
@@ -148,6 +159,37 @@ public struct LevelState : ICloneable {
                 func?.Invoke(piece);
             }
         }
+    }
+
+    public override bool Equals(object obj) {
+
+        if (obj.GetType() != GetType()) {
+            return false;
+        }
+
+        LevelState other = (LevelState)obj;
+
+        int w = Field.GetLength(0);
+        int h = Field.GetLength(1);
+
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                if (Field[x, y].Count != other.Field[x, y].Count) {
+                    return false;
+                }
+
+                for (int i = 0; i < Field[x, y].Count; i++) {
+                    if (Field[x, y][i] != other.Field[x, y][i]) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public override int GetHashCode() {
+        return 1998067999 + EqualityComparer<List<GamePiece>[,]>.Default.GetHashCode(Field);
     }
     #endregion
 }

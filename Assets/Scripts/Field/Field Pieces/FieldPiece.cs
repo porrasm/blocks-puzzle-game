@@ -11,7 +11,7 @@ public abstract class FieldPiece : MonoBehaviour {
     public int PieceID { get; set; }
     public GamePiece Piece {
         get {
-            return Level.Current.GetPiece(PieceID);
+            return LevelContainer.Current.GetPiece(PieceID);
         }
     }
     public void UpdateFieldState() {

@@ -4,5 +4,6 @@
     OnInvalidMove,
 
     OnLevelFinish,
-    OnLevelStart,   
+    OnLevelStart,
+    OnFieldStateChange,
 }

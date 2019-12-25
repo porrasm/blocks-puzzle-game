@@ -22,36 +22,38 @@ public class PlayPiece : GamePiece {
         return piece;
     }
 
-    public override void UpdateMove(Level.MoveState state) {
+    public override void UpdateMove(MoveState state) {
+        if (state.Move == Move.Up) {
+            MovePiece(X, Y + 1, state);
+        } else if (state.Move == Move.Down) {
+            MovePiece(X, Y - 1, state);
+        } else if (state.Move == Move.Right) {
+            MovePiece(X + 1, Y, state);
+        } else if (state.Move == Move.Left) {
+            MovePiece(X - 1, Y, state);
+        }
+    }
 
-        int width = state.State.Field.GetLength(0);
-        int height = state.State.Field.GetLength(1);
+    private void MovePiece(int x, int y, MoveState state) {
 
-        if (state.Move == Move.Up && Y + 1 < height) {
-            Y++;
-        } else if (state.Move == Move.Down && Y - 1 >= 0) {
-            Y--;
-        } else if (state.Move == Move.Right && X + 1 < width) {
-            X++;
-        } else if (state.Move == Move.Left && X - 1 >= 0) {
-            X--;
+        var field = state.State.Field;
+
+        if (InvalidIndex(x, y, field.GetLength(0), field.GetLength(1))) {
+            Logger.Log("Retrun, index out of bounds");
+            return;
         }
 
-        return;
-        switch (state.Move) {
-            case Move.Up:
-                Y++;
-                break;
-            case Move.Down:
-                Y--;
-                break;
-            case Move.Right:
-                X++;
-                break;
-            case Move.Left:
-                X--;
-                break;
+        if (state.State.CellHasPiece(x, y, PieceType.DefaultPiece)) {
+            Logger.Log("Retrun, field has piece default peice");
+            Logger.Log("in " + x + ", " + y);
+            return;
         }
+
+        X = x;
+        Y = y;
+    }
+    private bool InvalidIndex(int x, int y, int widht, int height) {
+        return x < 0 || x >= widht || y < 0 || y >= height;
     }
 
     public override bool Equals(object obj) {

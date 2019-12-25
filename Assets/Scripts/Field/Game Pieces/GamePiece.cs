@@ -6,7 +6,7 @@ using UnityEngine;
 public abstract class GamePiece : ICloneable {
 
     #region fields
-    private static int id;
+    private static int idIndex;
 
     public int ID { get; protected set; }
     public PieceType Type { get; set; }
@@ -16,15 +16,30 @@ public abstract class GamePiece : ICloneable {
     #endregion
 
     public GamePiece() {
-        ID = id;
-        id++;
+        ID = idIndex;
+        idIndex++;
     }
 
     public abstract object Clone();
-    public virtual void UpdateMove(Level.MoveState state) {
+    public virtual void UpdateMove(MoveState state) {
 
     }
-    public virtual void OnFixState(Level.MoveState state) {
+    public virtual void OnFixState(MoveState state) {
 
+    }
+
+    public override bool Equals(object obj) {
+
+        GamePiece other = obj as GamePiece;
+
+        if (other == null) {
+            return false;
+        }
+
+        return ID == other.ID;
+    }
+
+    public override int GetHashCode() {
+        return 1213502048 + ID.GetHashCode();
     }
 }

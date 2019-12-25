@@ -44,8 +44,8 @@ public class GridCreator : MonoBehaviour {
     #region drawing
     public void DrawGrid() {
 
-        width = Level.Current.Width;
-        height = Level.Current.Height;
+        width = LevelContainer.Current.Width;
+        height = LevelContainer.Current.Height;
 
         ClearGrid();
         DrawLines();

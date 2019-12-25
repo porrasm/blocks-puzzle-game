@@ -26,7 +26,7 @@ public class FinishPiece : GamePiece {
         return piece;
     }
 
-    public override void OnFixState(Level.MoveState state) {
+    public override void OnFixState(MoveState state) {
         base.UpdateMove(state);
 
         Logger.Log(Color + " finish count: " + state.State.Field[X, Y].Count);
