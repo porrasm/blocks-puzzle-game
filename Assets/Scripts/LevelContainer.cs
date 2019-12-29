@@ -82,7 +82,7 @@ public class LevelContainer : MonoBehaviour {
     #endregion
 
     // Testing only
-    private MoveState InitialState() {
+    private LevelState InitialState() {
 
         FieldPiece[] pieces = GameObject.FindObjectsOfType<FieldPiece>();
 
@@ -100,7 +100,7 @@ public class LevelContainer : MonoBehaviour {
             state.Field[piece.X, piece.Y].Add(piece);
         }
 
-        return new MoveState(Move.None, state);
+        return state;
     }
 
 

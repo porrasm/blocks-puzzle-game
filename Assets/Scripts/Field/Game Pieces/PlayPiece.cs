@@ -22,7 +22,7 @@ public class PlayPiece : GamePiece {
         return piece;
     }
 
-    public override void UpdateMove(MoveState state) {
+    public override void UpdateMove(LevelState state) {
         if (state.Move == Move.Up) {
             MovePiece(X, Y + 1, state);
         } else if (state.Move == Move.Down) {
@@ -34,16 +34,16 @@ public class PlayPiece : GamePiece {
         }
     }
 
-    private void MovePiece(int x, int y, MoveState state) {
+    private void MovePiece(int x, int y, LevelState state) {
 
-        var field = state.State.Field;
+        var field = state.Field;
 
         if (InvalidIndex(x, y, field.GetLength(0), field.GetLength(1))) {
             Logger.Log("Retrun, index out of bounds");
             return;
         }
 
-        if (state.State.CellHasPiece(x, y, PieceType.DefaultPiece)) {
+        if (state.CellHasPiece(x, y, PieceType.DefaultPiece)) {
             Logger.Log("Retrun, field has piece default peice");
             Logger.Log("in " + x + ", " + y);
             return;

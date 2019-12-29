@@ -7,13 +7,10 @@ public class LevelState : ICloneable {
 
     #region fields
     public List<GamePiece>[,] Field { get; private set; }
+    public LevelStatus Status { get; private set; }
+    public Move Move { get; private set; }
     #endregion
 
-    public enum Status {
-        Normal = 0,
-        Invalid = -1,
-        Finish = 1
-    }
 
     public LevelState(int width, int height) {
         Field = new List<GamePiece>[width, height];
@@ -25,10 +22,10 @@ public class LevelState : ICloneable {
     }
 
     #region state modification
-    public static Status FixState(MoveState moveState) {
+    public static LevelStatus FixState(LevelState moveState) {
 
-        int width = moveState.State.Field.GetLength(0);
-        int height = moveState.State.Field.GetLength(1);
+        int width = moveState.Field.GetLength(0);
+        int height = moveState.Field.GetLength(1);
 
         List<GamePiece>[,] newField = new List<GamePiece>[width, height];
         for (int x = 0; x < width; x++) {
@@ -37,7 +34,7 @@ public class LevelState : ICloneable {
             }
         }
 
-        foreach (var pieces in moveState.State.Field) {
+        foreach (var pieces in moveState.Field) {
             foreach (GamePiece piece in pieces) {
                 //if (moveState.State.IncorrectPiecePosition(piece)) {
                 //    return Status.Invalid;
@@ -46,24 +43,24 @@ public class LevelState : ICloneable {
             }
         }
 
-        moveState.State.Field = null;
-        moveState.State.Field = newField;
+        moveState.Field = null;
+        moveState.Field = newField;
 
-        foreach (var panel in moveState.State.Field) {
+        foreach (var panel in moveState.Field) {
             if (IncorrectPanel(panel)) {
-                return Status.Invalid;
+                return LevelStatus.Invalid;
             }
         }
 
-        moveState.State.IteratePieces((piece) => {
+        moveState.IteratePieces((piece) => {
             piece.OnFixState(moveState);
         });
 
-        if (moveState.State.CheckFinish()) {
-            return Status.Finish;
+        if (moveState.CheckFinish()) {
+            return LevelStatus.Finish;
         }
 
-        return Status.Normal;
+        return LevelStatus.Normal;
     }
     private bool CheckFinish() {
 
@@ -132,6 +129,12 @@ public class LevelState : ICloneable {
         return false;
     }
 
+    public LevelState CopyState(Move move) {
+        LevelState state = (LevelState)this.Clone();
+        state.Move = Move;
+        return state;
+    }
+
     public object Clone() {
 
         int width = Field.GetLength(0);
@@ -152,6 +155,38 @@ public class LevelState : ICloneable {
     }
     #endregion
     #region helpers
+    public static LevelState ExecuteMove(Move move, LevelState state) {
+
+        return null;
+
+        //LevelState newState = new LevelState(move, (LevelState)state.Clone());
+
+        //foreach (var pieces in newState.Field) {
+        //    foreach (GamePiece piece in pieces) {
+        //        piece.UpdateMove(newState);
+        //    }
+        //}
+
+        //newState.Status = LevelState.FixState(newState);
+
+        //if (newState.Status == LevelStatus.Invalid) {
+        //    Logger.Log("Incorrect move");
+        //    Events.FireEvent(EventType.OnInvalidMove);
+        //    return status;
+        //}
+
+        //level.States.Add(newState);
+        //level.UpdateDictionary();
+
+        //if (status == LevelStatus.Finish) {
+        //    Logger.Log("Finished level");
+        //    level.Finished = true;
+        //    Events.FireEvent(EventType.OnLevelFinish);
+        //}
+
+        //return status;
+    }
+
     public delegate void PieceIterate(GamePiece piece);
     public void IteratePieces(PieceIterate func) {
         foreach (var pieces in Field) {

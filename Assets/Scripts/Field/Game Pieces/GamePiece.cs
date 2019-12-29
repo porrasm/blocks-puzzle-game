@@ -21,10 +21,10 @@ public abstract class GamePiece : ICloneable {
     }
 
     public abstract object Clone();
-    public virtual void UpdateMove(MoveState state) {
+    public virtual void UpdateMove(LevelState state) {
 
     }
-    public virtual void OnFixState(MoveState state) {
+    public virtual void OnFixState(LevelState state) {
 
     }
 

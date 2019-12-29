@@ -15,11 +15,11 @@ public class LevelSolver : MonoBehaviour {
 
     private class StateCell {
         public StateCell prev;
-        public MoveState state;
+        public LevelState state;
     }
 
     public void SolveLevel(LevelState level) {
-        this.level = new Level(new MoveState(Move.None, level));
+        this.level = new Level(level);
         moves = new List<Move>();
         toVisit = new Queue<LevelState>();
         visited = new HashSet<LevelState>();

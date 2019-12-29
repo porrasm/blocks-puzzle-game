@@ -26,12 +26,12 @@ public class FinishPiece : GamePiece {
         return piece;
     }
 
-    public override void OnFixState(MoveState state) {
+    public override void OnFixState(LevelState state) {
         base.UpdateMove(state);
 
-        Logger.Log(Color + " finish count: " + state.State.Field[X, Y].Count);
+        Logger.Log(Color + " finish count: " + state.Field[X, Y].Count);
 
-        foreach (GamePiece piece in state.State.Field[X, Y]) {
+        foreach (GamePiece piece in state.Field[X, Y]) {
             if (piece.Type == PieceType.PlayPiece) {
                 PlayPiece playPiece = (PlayPiece)piece;
                 if (playPiece.Color == Color) {

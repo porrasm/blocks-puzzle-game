@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// REDUNDANT CLASS :(
 public class Level {
 
     #region fields
     private static LevelContainer current;
 
     private Move CurrentMove { get; set; }
-    public List<MoveState> States { get; private set; }
-    public MoveState CurrentState {
+    public List<LevelState> States { get; private set; }
+    public LevelState CurrentState {
         get {
             return States[States.Count - 1];
         }
@@ -20,9 +21,9 @@ public class Level {
     public bool Finished { get; private set; }
     #endregion
 
-    public Level(MoveState state) {
+    public Level(LevelState state) {
         pieces = new Dictionary<int, GamePiece>();
-        States = new List<MoveState>();
+        States = new List<LevelState>();
 
         States.Add(state);
         UpdateDictionary();
@@ -33,7 +34,7 @@ public class Level {
         UpdateDictionary();
     }
     public void Restart() {
-        MoveState initial = States[0];
+        LevelState initial = States[0];
         States.Clear();
         States.Add(initial);
         UpdateDictionary();
@@ -52,19 +53,21 @@ public class Level {
     }
 
     #region move
-    private static LevelState.Status ExecuteMove(Level level, Move move) {
+    private static LevelStatus ExecuteMove(Level level, Move move) {
 
-        MoveState newState = new MoveState(move, (LevelState)level.CurrentState.State.Clone());
+        Logger.Log("Exectuing move: " + move);
 
-        foreach (var pieces in newState.State.Field) {
+        LevelState newState = level.CurrentState.CopyState(move);
+
+        foreach (var pieces in newState.Field) {
             foreach (GamePiece piece in pieces) {
                 piece.UpdateMove(newState);
             }
         }
 
-        LevelState.Status status = LevelState.FixState(newState);
+        LevelStatus status = LevelState.FixState(newState);
 
-        if (status == LevelState.Status.Invalid) {
+        if (status == LevelStatus.Invalid) {
             Logger.Log("Incorrect move");
             Events.FireEvent(EventType.OnInvalidMove);
             return status;
@@ -73,7 +76,7 @@ public class Level {
         level.States.Add(newState);
         level.UpdateDictionary();
 
-        if (status == LevelState.Status.Finish) {
+        if (status == LevelStatus.Finish) {
             Logger.Log("Finished level");
             level.Finished = true;
             Events.FireEvent(EventType.OnLevelFinish);
@@ -81,11 +84,13 @@ public class Level {
 
         return status;
     }
+
+    
     #endregion
 
     private void UpdateDictionary() {
         pieces = new Dictionary<int, GamePiece>();
-        foreach (var pieces in CurrentState.State.Field) {
+        foreach (var pieces in CurrentState.Field) {
             foreach (GamePiece piece in pieces) {
                 this.pieces.Add(piece.ID, piece);
             }
