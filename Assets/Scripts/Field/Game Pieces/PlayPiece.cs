@@ -23,6 +23,9 @@ public class PlayPiece : GamePiece {
     }
 
     public override void UpdateMove(LevelState state) {
+
+        Logger.Log("UpdateMove " + Color);
+
         if (state.Move == Move.Up) {
             MovePiece(X, Y + 1, state);
         } else if (state.Move == Move.Down) {
@@ -31,6 +34,8 @@ public class PlayPiece : GamePiece {
             MovePiece(X + 1, Y, state);
         } else if (state.Move == Move.Left) {
             MovePiece(X - 1, Y, state);
+        } else {
+            throw new System.Exception("Invalid State.Move, State.Move was Move.None");
         }
     }
 
@@ -48,6 +53,8 @@ public class PlayPiece : GamePiece {
             Logger.Log("in " + x + ", " + y);
             return;
         }
+
+        Logger.Log("MOving piece: " + Color);
 
         X = x;
         Y = y;

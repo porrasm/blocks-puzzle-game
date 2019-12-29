@@ -129,10 +129,10 @@ public class LevelState : ICloneable {
         return false;
     }
 
-    public LevelState CopyState(Move move) {
-        LevelState state = (LevelState)this.Clone();
-        state.Move = Move;
-        return state;
+    public LevelState CopyState(Move newMove) {
+        LevelState newState = (LevelState)this.Clone();
+        newState.Move = newMove;
+        return newState;
     }
 
     public object Clone() {

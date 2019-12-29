@@ -59,8 +59,11 @@ public class Level {
 
         LevelState newState = level.CurrentState.CopyState(move);
 
+        Logger.Log("New state move: " + newState.Move);
+
         foreach (var pieces in newState.Field) {
             foreach (GamePiece piece in pieces) {
+                Logger.Log("Update move: " + piece);
                 piece.UpdateMove(newState);
             }
         }

@@ -24,6 +24,9 @@ public class LevelContainer : MonoBehaviour {
         if (CheckMove()) {
             Events.FireEvent(EventType.OnMoveStart, CallbackData.Object(currentMove));
             level.ExecuteMove(currentMove);
+
+            Logger.Log("State count: " + level.States.Count);
+
             Events.FireEvent(EventType.OnMoveEnd, CallbackData.Object(currentMove));
         }
         if (Input.GetKeyDown(KeyCode.Backspace)) {
