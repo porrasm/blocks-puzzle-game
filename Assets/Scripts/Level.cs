@@ -19,11 +19,14 @@ public class Level {
     private Dictionary<int, GamePiece> pieces;
 
     public bool Finished { get; private set; }
+
+    public LevelSolver Solver { get; private set; }
     #endregion
 
     public Level(LevelState state) {
         pieces = new Dictionary<int, GamePiece>();
         States = new List<LevelState>();
+        Solver = new LevelSolver();
 
         States.Add(state);
         UpdateDictionary();
@@ -49,47 +52,26 @@ public class Level {
     }
 
     public void ExecuteMove(Move move) {
-        Level.ExecuteMove(this, move);
-    }
 
-    #region move
-    private static LevelStatus ExecuteMove(Level level, Move move) {
+        LevelState newState = LevelState.ExecuteMove(move, CurrentState);
 
-        Logger.Log("Exectuing move: " + move);
-
-        LevelState newState = level.CurrentState.CopyState(move);
-
-        Logger.Log("New state move: " + newState.Move);
-
-        foreach (var pieces in newState.Field) {
-            foreach (GamePiece piece in pieces) {
-                Logger.Log("Update move: " + piece);
-                piece.UpdateMove(newState);
-            }
-        }
-
-        LevelStatus status = LevelState.FixState(newState);
-
-        if (status == LevelStatus.Invalid) {
+        if (newState.Status == LevelStatus.Invalid) {
             Logger.Log("Incorrect move");
             Events.FireEvent(EventType.OnInvalidMove);
-            return status;
+
+            // Incorrect move handling, block destroy animations??
+            return;
         }
 
-        level.States.Add(newState);
-        level.UpdateDictionary();
+        States.Add(newState);
+        UpdateDictionary();
 
-        if (status == LevelStatus.Finish) {
+        if (newState.Status == LevelStatus.Finish) {
             Logger.Log("Finished level");
-            level.Finished = true;
+            Finished = true;
             Events.FireEvent(EventType.OnLevelFinish);
         }
-
-        return status;
     }
-
-    
-    #endregion
 
     private void UpdateDictionary() {
         pieces = new Dictionary<int, GamePiece>();

@@ -155,36 +155,24 @@ public class LevelState : ICloneable {
     }
     #endregion
     #region helpers
-    public static LevelState ExecuteMove(Move move, LevelState state) {
+    public static LevelState ExecuteMove(Move move, LevelState oldState) {
 
-        return null;
+        Logger.Log("Exectuing move: " + move);
 
-        //LevelState newState = new LevelState(move, (LevelState)state.Clone());
+        LevelState newState = oldState.CopyState(move);
 
-        //foreach (var pieces in newState.Field) {
-        //    foreach (GamePiece piece in pieces) {
-        //        piece.UpdateMove(newState);
-        //    }
-        //}
+        Logger.Log("New state move: " + newState.Move);
 
-        //newState.Status = LevelState.FixState(newState);
+        foreach (var pieces in newState.Field) {
+            foreach (GamePiece piece in pieces) {
+                Logger.Log("Update move: " + piece);
+                piece.UpdateMove(newState);
+            }
+        }
 
-        //if (newState.Status == LevelStatus.Invalid) {
-        //    Logger.Log("Incorrect move");
-        //    Events.FireEvent(EventType.OnInvalidMove);
-        //    return status;
-        //}
+        newState.Status = LevelState.FixState(newState);
 
-        //level.States.Add(newState);
-        //level.UpdateDictionary();
-
-        //if (status == LevelStatus.Finish) {
-        //    Logger.Log("Finished level");
-        //    level.Finished = true;
-        //    Events.FireEvent(EventType.OnLevelFinish);
-        //}
-
-        //return status;
+        return newState;
     }
 
     public delegate void PieceIterate(GamePiece piece);

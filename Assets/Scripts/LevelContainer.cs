@@ -43,6 +43,8 @@ public class LevelContainer : MonoBehaviour {
     #region move
     private bool CheckMove() {
 
+        currentMove = Move.None;
+
         if (level.Finished) {
             return false;
         }
@@ -64,6 +66,15 @@ public class LevelContainer : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.R)) {
             level.Restart();
+        }
+        if (Input.GetKeyDown(KeyCode.Return)) {
+            StartCoroutine(level.Solver.SolveLevel(level.CurrentState));
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow)) {
+            Move move = level.Solver.moves[0];
+            level.Solver.moves.RemoveAt(0);
+            currentMove = move;
+            return true;
         }
 
         if (x == 0 && y == 0) {
