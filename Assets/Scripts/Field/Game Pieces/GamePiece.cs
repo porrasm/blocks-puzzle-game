@@ -20,6 +20,11 @@ public abstract class GamePiece : ICloneable {
     public int X { get; set; }
     public int Y { get; set; }
     public bool Enabled { get; set; } = true;
+    public Vector2 PositionVector {
+        get {
+            return new Vector2(X, Y);
+        }
+    }
     #endregion
 
     public GamePiece(bool unique) {

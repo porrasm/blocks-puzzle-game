@@ -9,6 +9,7 @@ public class LevelState : ICloneable {
     public List<GamePiece>[,] Field { get; private set; }
     public LevelStatus Status { get; private set; }
     public Move Move { get; private set; }
+    public int PieceCount { get; private set; }
     #endregion
 
 
@@ -133,6 +134,9 @@ public class LevelState : ICloneable {
         return newState;
     }
 
+
+    #endregion
+    #region helpers
     public object Clone() {
 
         int width = Field.GetLength(0);
@@ -149,10 +153,11 @@ public class LevelState : ICloneable {
             }
         }
 
+        newState.PieceCount = PieceCount;
+
         return newState;
     }
-    #endregion
-    #region helpers
+
     public static LevelState ExecuteMove(Move move, LevelState oldState) {
 
         LevelState newState = oldState.CopyState(move);
@@ -166,6 +171,23 @@ public class LevelState : ICloneable {
         newState.Status = LevelState.FixState(newState);
 
         return newState;
+    }
+
+    public void AddPiece(GamePiece piece) {
+        PieceCount++;
+        Field[piece.X, piece.Y].Add(piece);
+        Logger.Log("piece count: " + PieceCount);
+    }
+
+    public GamePiece[] Pieces() {
+        GamePiece[] pieces = new GamePiece[PieceCount];
+        int index = 0;
+
+        IteratePieces((piece) => {
+            pieces[index] = piece;
+            index++;
+        });
+        return pieces;
     }
 
     public delegate void PieceIterate(GamePiece piece);

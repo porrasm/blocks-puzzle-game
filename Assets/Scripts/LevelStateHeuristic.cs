@@ -7,6 +7,13 @@ using UnityEngine;
 
 public static class LevelStateHeuristic {
 
+    #region fields
+    private static float diameter = 12.728f;
+    private static LevelState state;
+    private static GamePiece[] pieces;
+    private static PiecePair[] pairs;
+    private static double distance;
+
     private struct PiecePair {
         public PlayPiece play;
         public FinishPiece finish;
@@ -22,21 +29,31 @@ public static class LevelStateHeuristic {
             }
         }
     }
+    #endregion
 
-    public static double Value(LevelState state) {
-        Dictionary<Colors.BlockColor, PiecePair> pairs = GetPairs(state);
-        double distance = 0;
+    #region initialization
+    public static double GetHeuristicsValue(LevelState state) {
+        LevelStateHeuristic.state = state;
+        pieces = state.Pieces();
+        SetPairs();
 
-        foreach (PiecePair pair in pairs.Values) {
-            distance += pair.Distance;
-        }
+        EstimateHeuristics();
 
-        return distance;
+        double val = distance / pairs.Length;
+        Reset();
+        return val;
     }
-    private static Dictionary<Colors.BlockColor, PiecePair> GetPairs(LevelState state) {
+    private static void Reset() {
+        state = null;
+        pairs = null;
+        pieces = null;
+        distance = 0;
+    }
+
+    private static void SetPairs() {
         Dictionary<Colors.BlockColor, PiecePair> pairs = new Dictionary<Colors.BlockColor, PiecePair>();
 
-        state.IteratePieces((piece) => {
+        foreach (GamePiece piece in pieces) {
             if (piece.Type == PieceType.PlayPiece) {
 
                 var play = (PlayPiece)piece;
@@ -65,9 +82,54 @@ public static class LevelStateHeuristic {
                     pairs.Add(finish.Color, pair);
                 }
             }
-        });
+        }
 
-        return pairs;
+        LevelStateHeuristic.pairs = pairs.Values.ToArray();
     }
+    #endregion
+
+    #region heuristics
+    private static void EstimateHeuristics() {
+        if (!PiecesAreInCorrectSetup(pairs)) {
+            // blocks in wrong setup, all 'max' distances
+            IncorrectSetup();
+        }
+
+        AddGoalDistances();
+    }
+
+    private static void AddGoalDistances() {
+        foreach (PiecePair pair in pairs) {
+            distance += pair.Distance;
+        }
+    }
+
+    private static void IncorrectSetup() {
+        distance += pairs.Length * diameter;
+    }
+
+    private static bool PiecesAreInCorrectSetup(PiecePair[] pairs) {
+        if (pairs.Length < 2) {
+            return true;
+        }
+        for (int i = 0; i < pairs.Length - 1; i++) {
+            Vector2 playVector = pairs[i + 1].play.PositionVector - pairs[i].play.PositionVector;
+            Vector2 finishVector = pairs[i + 1].finish.PositionVector - pairs[i].finish.PositionVector;
+
+            if (playVector != finishVector) {
+
+                //Logger.Log("Play 1 pos: " + pairs[i + 1].play.PositionVector);
+                //Logger.Log("Play 2 pos: " + pairs[i].play.PositionVector);
+                //Logger.Log("Finish 1 pos: " + pairs[i + 1].finish.PositionVector);
+                //Logger.Log("Finish 2 pos: " + pairs[i].finish.PositionVector);
+
+                //Logger.Log(playVector + ", finish: " + finishVector);
+                //throw new Exception("false");
+                return false;
+            }
+        }
+        return true;
+    }
+    #endregion
 }
 

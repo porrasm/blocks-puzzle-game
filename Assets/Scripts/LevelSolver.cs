@@ -9,7 +9,8 @@ public class LevelSolver {
     #region fields
     public List<Move> moves;
 
-    private SimplePriorityQueue<StateCell> toVisit;
+    //private SimplePriorityQueue<StateCell> toVisit;
+    private PriorityQueue<StateCell> toVisit;
     private HashSet<LevelState> visited;
     #endregion
 
@@ -20,7 +21,7 @@ public class LevelSolver {
 
         public double Heuristic {
             get {
-                return moves + LevelStateHeuristic.Value(state);
+                return moves + LevelStateHeuristic.GetHeuristicsValue(state);
             }
         }
 
@@ -35,7 +36,7 @@ public class LevelSolver {
     public IEnumerator SolveLevel(LevelState beginState) {
 
         moves = new List<Move>();
-        toVisit = new SimplePriorityQueue<StateCell>();
+        toVisit = new PriorityQueue<StateCell>();
         visited = new HashSet<LevelState>();
 
         visited.Add(beginState);
@@ -49,10 +50,13 @@ public class LevelSolver {
 
             StateCell current = toVisit.Dequeue();
 
-            if (s.ElapsedMilliseconds > 1000) {
+            if (s.ElapsedMilliseconds > 5000) {
                 Logger.Log("Visited: " + visited.Count + ", in queue: " + toVisit.Count + ", steps: " + current.moves);
                 s.Reset();
                 s.Start();
+                if (Input.GetKey(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Escape)) {
+                    break;
+                }
                 yield return null;
             }
 
@@ -70,6 +74,9 @@ public class LevelSolver {
         }
 
         Logger.Log("Found solution with " + moves.Count + " steps and visited " + visited.Count);
+
+        visited = null;
+        toVisit = null;
     }
 
     private void FinishCell(StateCell cell) {
@@ -98,7 +105,10 @@ public class LevelSolver {
             if (newCell.state.Status == LevelStatus.Finish) {
                 Logger.Log("Premature finish found");
             }
-            toVisit.Enqueue(newCell, (float)newCell.Heuristic);
+
+            if (!visited.Contains(newCell.state)) {
+                toVisit.Enqueue(newCell, (float)newCell.Heuristic);
+            }
         }
     }
 }

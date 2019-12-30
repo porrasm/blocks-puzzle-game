@@ -89,6 +89,9 @@ public class LevelContainer : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Alpha3)) {
             Logger.Log("Check equals: " + a.Equals(b));
         }
+        if (Input.GetKeyDown(KeyCode.Alpha4)) {
+            Logger.Log("State heur: " + LevelStateHeuristic.GetHeuristicsValue(level.CurrentState));
+        }
 
         if (x == 0 && y == 0) {
             currentMove = Move.None;
@@ -124,7 +127,8 @@ public class LevelContainer : MonoBehaviour {
 
             pieces[i].PieceID = piece.ID;
 
-            state.Field[piece.X, piece.Y].Add(piece);
+            //state.Field[piece.X, piece.Y].Add(piece);
+            state.AddPiece(piece);
         }
 
         return state;
