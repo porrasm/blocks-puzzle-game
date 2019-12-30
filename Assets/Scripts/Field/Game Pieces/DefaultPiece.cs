@@ -9,13 +9,13 @@ public class DefaultPiece : GamePiece {
     public bool Active { get; private set; }
     #endregion
 
-    public DefaultPiece() {
+    public DefaultPiece(bool unique) : base(unique) {
         Type = PieceType.DefaultPiece;
     }
 
 
     public override object Clone() {
-        DefaultPiece piece = new DefaultPiece();
+        DefaultPiece piece = new DefaultPiece(false);
         piece.Type = Type;
         piece.X = X;
         piece.Y = Y;

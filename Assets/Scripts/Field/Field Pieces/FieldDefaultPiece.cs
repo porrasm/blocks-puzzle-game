@@ -8,7 +8,7 @@ public class FieldDefaultPiece : FieldPiece {
 
     #endregion
     public override GamePiece GetInitialPiece() {
-        DefaultPiece p = new DefaultPiece();
+        DefaultPiece p = new DefaultPiece(true);
         return p;
     }
 }

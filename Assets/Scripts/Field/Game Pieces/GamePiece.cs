@@ -7,6 +7,13 @@ public abstract class GamePiece : ICloneable {
 
     #region fields
     private static int idIndex;
+    private static int UniqueID {
+        get {
+            int i = idIndex;
+            idIndex++;
+            return i;
+        }
+    }
 
     public int ID { get; protected set; }
     public PieceType Type { get; set; }
@@ -15,9 +22,11 @@ public abstract class GamePiece : ICloneable {
     public bool Enabled { get; set; } = true;
     #endregion
 
-    public GamePiece() {
-        ID = idIndex;
-        idIndex++;
+    public GamePiece(bool unique) {
+        if (unique) {
+            ID = UniqueID;
+            Logger.Log("set Unique id: " + ID);
+        }
     }
 
     public abstract object Clone();
@@ -38,6 +47,7 @@ public abstract class GamePiece : ICloneable {
 
         return ID == other.ID;
     }
+
 
     public override int GetHashCode() {
         return 1213502048 + ID.GetHashCode();

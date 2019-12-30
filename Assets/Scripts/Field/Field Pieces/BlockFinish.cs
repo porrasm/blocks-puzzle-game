@@ -14,7 +14,7 @@ public class BlockFinish : FieldPiece {
     }
 
     public override GamePiece GetInitialPiece() {
-        var p = new FinishPiece();
+        var p = new FinishPiece(true);
         p.Color = Color;
         return p;
     }

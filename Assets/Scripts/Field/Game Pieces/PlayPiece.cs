@@ -6,12 +6,12 @@ public class PlayPiece : GamePiece {
 
     public Colors.BlockColor Color { get; set; }
 
-    public PlayPiece() {
+    public PlayPiece(bool unique) : base(unique) {
         Type = PieceType.PlayPiece;
     }
 
     public override object Clone() {
-        PlayPiece piece = new PlayPiece();
+        PlayPiece piece = new PlayPiece(false);
         piece.Type = Type;
         piece.X = X;
         piece.Y = Y;
@@ -23,8 +23,6 @@ public class PlayPiece : GamePiece {
     }
 
     public override void UpdateMove(LevelState state) {
-
-        Logger.Log("UpdateMove " + Color);
 
         if (state.Move == Move.Up) {
             MovePiece(X, Y + 1, state);
@@ -44,17 +42,12 @@ public class PlayPiece : GamePiece {
         var field = state.Field;
 
         if (InvalidIndex(x, y, field.GetLength(0), field.GetLength(1))) {
-            Logger.Log("Retrun, index out of bounds");
             return;
         }
 
         if (state.CellHasPiece(x, y, PieceType.DefaultPiece)) {
-            Logger.Log("Retrun, field has piece default peice");
-            Logger.Log("in " + x + ", " + y);
             return;
         }
-
-        Logger.Log("MOving piece: " + Color);
 
         X = x;
         Y = y;

@@ -74,8 +74,6 @@ public class LevelState : ICloneable {
             }
         });
 
-        Logger.Log("all active: " + allActive);
-
         return allActive;
     }
 
@@ -157,15 +155,10 @@ public class LevelState : ICloneable {
     #region helpers
     public static LevelState ExecuteMove(Move move, LevelState oldState) {
 
-        Logger.Log("Exectuing move: " + move);
-
         LevelState newState = oldState.CopyState(move);
-
-        Logger.Log("New state move: " + newState.Move);
 
         foreach (var pieces in newState.Field) {
             foreach (GamePiece piece in pieces) {
-                Logger.Log("Update move: " + piece);
                 piece.UpdateMove(newState);
             }
         }
@@ -202,7 +195,7 @@ public class LevelState : ICloneable {
                 }
 
                 for (int i = 0; i < Field[x, y].Count; i++) {
-                    if (Field[x, y][i] != other.Field[x, y][i]) {
+                    if (!Field[x, y][i].Equals(other.Field[x, y][i])) {
                         return false;
                     }
                 }

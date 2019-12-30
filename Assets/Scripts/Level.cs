@@ -26,7 +26,7 @@ public class Level {
     public Level(LevelState state) {
         pieces = new Dictionary<int, GamePiece>();
         States = new List<LevelState>();
-        Solver = new LevelSolver();
+        Solver = new LevelSolver(); 
 
         States.Add(state);
         UpdateDictionary();

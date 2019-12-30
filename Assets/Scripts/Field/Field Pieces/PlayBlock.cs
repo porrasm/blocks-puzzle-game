@@ -12,7 +12,7 @@ public class PlayBlock : FieldPiece {
     }
 
     public override GamePiece GetInitialPiece() {
-        var p = new PlayPiece();
+        var p = new PlayPiece(true);
         p.Color = Color;
         return p;
     }

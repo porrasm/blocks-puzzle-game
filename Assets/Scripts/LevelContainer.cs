@@ -40,6 +40,9 @@ public class LevelContainer : MonoBehaviour {
         return level.GetPiece(id);
     }
 
+    LevelState a;
+    LevelState b;
+
     #region move
     private bool CheckMove() {
 
@@ -75,6 +78,16 @@ public class LevelContainer : MonoBehaviour {
             level.Solver.moves.RemoveAt(0);
             currentMove = move;
             return true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1)) {
+            a = level.CurrentState;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2)) {
+            b = level.CurrentState;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3)) {
+            Logger.Log("Check equals: " + a.Equals(b));
         }
 
         if (x == 0 && y == 0) {

@@ -9,13 +9,13 @@ public class FinishPiece : GamePiece {
     public bool Active { get; private set; }
     #endregion
 
-    public FinishPiece() {
+    public FinishPiece(bool unique) : base(unique) {
         Type = PieceType.FinishPiece;
     }
 
 
     public override object Clone() {
-        FinishPiece piece = new FinishPiece();
+        FinishPiece piece = new FinishPiece(false);
         piece.Type = Type;
         piece.X = X;
         piece.Y = Y;
@@ -28,8 +28,6 @@ public class FinishPiece : GamePiece {
 
     public override void OnFixState(LevelState state) {
         base.UpdateMove(state);
-
-        Logger.Log(Color + " finish count: " + state.Field[X, Y].Count);
 
         foreach (GamePiece piece in state.Field[X, Y]) {
             if (piece.Type == PieceType.PlayPiece) {
