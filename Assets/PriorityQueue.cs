@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 public class PriorityQueue<T> {
 
     #region fields
-    private const int QUEUES = 1000;
-    private const double LIMIT = 12.728 * 3;
+    // accuracy at 0.01 seemed OK (LIMIT / QUEUES)
+    private const int QUEUES = 10000;
+    private const double LIMIT = 100;
 
     public Queue<T>[] queues;
 
